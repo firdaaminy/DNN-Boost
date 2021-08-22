@@ -1,5 +1,4 @@
-The tumor-normal paired data of pancreatic cancer whole-exome sequencing (WES) was obtained from National Center for Biotechnology Information (NCBI) Sequence Read Archive (SRA) data portal (https://www.ncbi.nlm.nih.gov/bioproject/PRJNA386668). The tumor-only data was acquired from Therragen Etex WES of pancreatic cancer. 
-To prepare these raw datasets (FASTQ files) into the analysis-ready training and testing dataset, which can be found in the training_data folder and tumor-only_data folder, we utilized the following alignment and variant calling tools:
+The tumor-normal paired data of pancreatic cancer whole-exome sequencing (WES) was obtained from National Center for Biotechnology Information (NCBI) Sequence Read Archive (SRA) data portal (https://www.ncbi.nlm.nih.gov/bioproject/PRJNA386668). To prepare these raw datasets (FASTQ files) into the analysis-ready training and testing dataset, which can be found in the training_data folder and tumor-only_data folder, we utilized the following alignment and variant calling tools:
 
 # 1.	WES Alignment with Bowtie2
 We performed end-to-end read alignment using BOWTIE2 version 2.2.6 (http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml) for the tumor reads and the paired normal reads. The reference genome file we used was GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.
