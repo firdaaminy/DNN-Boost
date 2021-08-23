@@ -22,17 +22,17 @@ The sorted and deduplicated BAM files were then used as the input for the varian
 # 2.	Variant Calling
 ## 2.1.	Mutect2 
 Mutect2 version 4.1.9.0 (https://gatk.broadinstitute.org/hc/en-us/articles/360037593851-Mutect2) was run in the tumor-normal matched mode to retrieve the somatic mutation variants calls from the tumor-normal paired data. This tumor-normal matched mode required a Panel of Normals (PON). PON was generated from the six normal BAM files by first running Mutect2 in the tumor-only mode for each normal sample and then combine the normal calls using the function CreateSomaticPanelOfNormals from Mutect2. Finally, we ran Mutect2 for each tumor sample with its matching normal sample using the generated PON.
-1)	Run Mutect2 w/matched normal for the benchmark set
+1)	Run Mutect2 w/matched normal for the benchmark set:
 ```
 gatk --java-options "-Xmx8g" Mutect2 -R GCA_000001405.15_GRCh38_no_alt_analysis_set.fna -I [INPUT SORTED DEDUPLICATED TUMOR BAM FILE] -I [INPUT SORTED DEDUPLICATED NORMAL BAM FILE] -tumor [ID TUMOR BAM FILE] -normal [ID NORMAL BAM FILE] -pon [PON VCF.gz FILE] --germline-resource somatic-hg38_af-only-gnomad.hg38.vcf --af-of-alleles-not-in-resource 0.0000025 -L Homo_sapiens_assembly38_exome.targets.interval_list -O [OUTPUT VCF FILE]
 ```
 
-2)	Run FilterMutectCalls to filter somatic variants, germline variants, and artifacts in the Mutect2 VCF callset
+2)	Run FilterMutectCalls to filter somatic variants, germline variants, and artifacts in the Mutect2 VCF callset:
 ```
 gatk FilterMutectCalls -R GCA_000001405.15_GRCh38_no_alt_analysis_set.fna -V [INPUT MUTECT2 UNFILTERED VCF] -O [OUTPUT MUTECT2 FILTERED VCF]
 ```
 
-3)	Filter out the indels from the Mutect2 filtered VCFs callset
+3)	Filter out the indels from the Mutect2 filtered VCFs callset.
 4)	Annotate each of the SNP-only VCFs with ANNOVAR to acquire the functional prediction features:
 ```
 perl table_annovar.pl [INPUT MUTECT2 FILTERED VCF] humandb/ -buildver hg38 -out [OUTPUT ANNOTATED VCF] --remove --protocol refGene,exac03,avsnp150,dbnsfp33a,gnomad_exome,cosmic92_coding,clinvar_20210123 --operation gx,f,f,f,f,f,f -nastring . -vcfinput -polish -xref example/gene_fullxref.txt
@@ -43,7 +43,7 @@ The multiple VCF files, which were annotated with functional prediction features
 
 ## 2.2.	HaplotypeCaller 
 Utilizing HaplotypeCaller version 4.1.9.0, we want to acquire the variants statistical features of FS, MQ, MQRankSum, QD, and ReadRankSum which we will integrate to the dataset of variants called by Mutect2. To acquire these features, we ran HaplotypeCaller on each tumor and normal sample’s BAM file using the GVCF (Genomic VCF) workflow for scalable variant calling in exome sequence data.
-1)	Run the HaplotypeCaller on each tumor and normal samples BAM files to create single-sample gVCFs, with the option --emitRefConfidence GVCF, and using the .g.vcf extension for the output file.
+1)	Run the HaplotypeCaller on each tumor and normal samples BAM files to create single-sample gVCFs, with the option --emitRefConfidence GVCF, and using the .g.vcf extension for the output file:
 ```
 gatk --java-options "-Xmx4g" HaplotypeCaller -R GCA_000001405.15_GRCh38_no_alt_analysis_set.fna -I [INPUT SORTED DEDUPLICATED TUMOR BAM FILE] -O [OUTPUT .g.vcf] -A StrandBiasBySample -ERC GVCF
 ```
@@ -52,17 +52,17 @@ gatk --java-options "-Xmx4g" HaplotypeCaller -R GCA_000001405.15_GRCh38_no_alt_a
 gatk --java-options "-Xmx96g -Xms96g" CombineGVCFs -R GCA_000001405.15_GRCh38_no_alt_analysis_set.fna -V [INPUT .g.vcf] -V [INPUT .g.vcf] -V [INPUT .g.vcf] -V [INPUT .g.vcf] -O [OUTPUT FILE COHORT .g.vcf]
 ```
 
-3)	Joint genotyping
+3)	Joint genotyping:
 ```
 gatk --java-options "-Xmx4g" GenotypeGVCFs -R GCA_000001405.15_GRCh38_no_alt_analysis_set.fna -V [INPUT FILE COHORT .g.vcf] -O [OUTPUT FINAL COHORT VCF]
 ```
 
-4)	Subset to SNPs-only callset with SelectVariants
+4)	Subset to SNPs-only callset with SelectVariants:
 ```
 gatk SelectVariants -V [INPUT FINAL COHORT VCF] -select-type SNP -O [OUTPUT SNP-ONLY VCF]
 ```
 
-5)	Hard-filtering variant 
+5)	Hard-filtering variant:
 ```
 gatk VariantFiltration -V [INPUT SNP-ONLY VCF] -filter "QD < 2.0" --filter-name "QD2" -filter "QUAL < 30.0" --filter-name "QUAL30" -filter "FS > 60.0" --filter-name "FS60" -filter "MQ < 40.0" --filter-name "MQ40" -filter "MQRankSum < -12.5" --filter-name "MQRankSum-12.5" -O [OUTPUT FILTERED SNP-ONLY VCF]
 ```
