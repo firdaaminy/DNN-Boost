@@ -39,7 +39,7 @@ perl table_annovar.pl [INPUT MUTECT2 FILTERED VCF] humandb/ -buildver hg38 -out 
 ```
 
 5)	Variant collapsing
-The multiple VCF files, which were annotated with functional prediction features, will be combined using variant collapsing.  According to the study by Kalatskaya et al. [1], the variants identified as somatic or germline by Mutect2 can be assumed to have the same position of genome and substitution pattern. With variant collapsing, we created a dataset of unique variants. 
+The multiple VCF files, which were annotated with functional prediction features, will be combined using variant collapsing.  According to the study by Kalatskaya et al. [1], the variants identified as somatic or germline by Mutect2 can be assumed to have the same position of genome and substitution pattern. With variant collapsing, we created a dataset of unique variants.
 
 ## 2.2.	HaplotypeCaller 
 Utilizing HaplotypeCaller version 4.1.9.0, we want to acquire the variants statistical features of FS, MQ, MQRankSum, QD, and ReadRankSum which we will integrate to the dataset of variants called by Mutect2. To acquire these features, we ran HaplotypeCaller on each tumor and normal sample’s BAM file using the GVCF (Genomic VCF) workflow for scalable variant calling in exome sequence data.
